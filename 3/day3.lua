@@ -1,4 +1,3 @@
-
 local file = io.open(arg[1], "r")
 assert(file)
 
