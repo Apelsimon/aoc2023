@@ -1,18 +1,8 @@
+package.path = package.path .. ';../help.lua'
+local help = require("help")
+
 local file = io.open(arg[1], "r")
 assert(file)
-
-local splitInTwo = function(str, delimiter)
-    local it = str:gmatch("[^" .. delimiter .. "]+")
-    return it(), it()
-end
-
-local splitIntoTable = function(str, delimiter)
-    local result = {}
-    for token in str:gmatch("[^" .. delimiter .. "]+") do
-        table.insert(result, token)
-    end
-    return result
-end
 
 local hasNumber = function(numbers, number)
     for _, nr in ipairs(numbers) do
@@ -38,10 +28,10 @@ local partOne = function(file)
     local sum = 0
 
     for line in file:lines() do
-        _, line = splitInTwo(line, ":")
-        local winningNumbers, numbers  = splitInTwo(line, "|")
-        winningNumbers = splitIntoTable(winningNumbers, " ")
-        numbers = splitIntoTable(numbers, " ")
+        _, line = help.splitInTwo(line, ":")
+        local winningNumbers, numbers  = help.splitInTwo(line, "|")
+        winningNumbers = help.splitIntoTable(winningNumbers, " ")
+        numbers = help.splitIntoTable(numbers, " ")
         
         local matches = numberOfMatches(numbers, winningNumbers)
         sum = sum + (matches > 0 and (2 ^ (matches - 1)) or 0)
@@ -63,10 +53,10 @@ local partTwo = function(file)
     end
 
     for line in file:lines() do
-        _, line = splitInTwo(line, ":")
-        local winningNumbers, numbers  = splitInTwo(line, "|")
-        winningNumbers = splitIntoTable(winningNumbers, " ")
-        numbers = splitIntoTable(numbers, " ")
+        _, line = help.splitInTwo(line, ":")
+        local winningNumbers, numbers  = help.splitInTwo(line, "|")
+        winningNumbers = help.splitIntoTable(winningNumbers, " ")
+        numbers = help.splitIntoTable(numbers, " ")
 
         initOrIncrement(numCardInstances, currentCard, 1)
         local matches = numberOfMatches(numbers, winningNumbers)
