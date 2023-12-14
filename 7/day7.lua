@@ -58,25 +58,8 @@ local getHandType = function(hand)
     return 1
 end
 
-local sortByRank = function(getHandTypeFunc, cardValue)
-    return function(a, b)
-        local t1, t2 = getHandTypeFunc(a.hand), getHandTypeFunc(b.hand)
-
-        if t1 < t2 then return true end
-        if t1 > t2 then return false end
-
-        local size = #a.hand
-        for i = 1, size do
-            if cardValue[a.hand:sub(i, i)] < cardValue[b.hand:sub(i, i)] then return true end
-            if cardValue[a.hand:sub(i, i)] > cardValue[b.hand:sub(i, i)] then return false end
-        end
-
-        return false
-    end
-end
-
-local partOne = function(playedHands)
-    local cardValue = {
+local getCardValue = function(useJoker)
+    local cardValues = {
         ["2"] = 2,
         ["3"] = 3,
         ["4"] = 4,
@@ -86,13 +69,36 @@ local partOne = function(playedHands)
         ["8"] = 8,
         ["9"] = 9,
         ["T"] = 10,
-        ["J"] = 11,
+        ["J"] = useJoker and 1 or 11,
         ["Q"] = 12,
         ["K"] = 13,
         ["A"] = 14,
     }
 
-    table.sort(playedHands, sortByRank(getHandType, cardValue))
+    return function (card)
+        return cardValues[card]
+    end
+end
+
+local sortByRank = function(getHandTypeFunc, cardValue)
+    return function(a, b)
+        local t1, t2 = getHandTypeFunc(a.hand), getHandTypeFunc(b.hand)
+
+        if t1 < t2 then return true end
+        if t1 > t2 then return false end
+
+        local size = #a.hand
+        for i = 1, size do
+            if cardValue(a.hand:sub(i, i)) < cardValue(b.hand:sub(i, i)) then return true end
+            if cardValue(a.hand:sub(i, i)) > cardValue(b.hand:sub(i, i)) then return false end
+        end
+
+        return false
+    end
+end
+
+local partOne = function(playedHands)
+    table.sort(playedHands, sortByRank(getHandType, getCardValue(false)))
 
     local sum = 0
     for rank, entry in ipairs(playedHands) do
@@ -138,23 +144,7 @@ local partTwo = function(playedHands)
         return getHandType(replaceJokers(hand))
     end
 
-    local cardValue = {
-        ["2"] = 2,
-        ["3"] = 3,
-        ["4"] = 4,
-        ["5"] = 5,
-        ["6"] = 6,
-        ["7"] = 7,
-        ["8"] = 8,
-        ["9"] = 9,
-        ["T"] = 10,
-        ["J"] = 1,
-        ["Q"] = 12,
-        ["K"] = 13,
-        ["A"] = 14,
-    }
-
-    table.sort(playedHands, sortByRank(getHandTypeWithJoker, cardValue))
+    table.sort(playedHands, sortByRank(getHandTypeWithJoker, getCardValue(true)))
 
     local sum = 0
     for rank, entry in ipairs(playedHands) do
