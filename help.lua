@@ -10,5 +10,17 @@ return {
             table.insert(result, transform and transform(token) or token)
         end
         return result
+    end,
+
+    deepCopy = function(self, t)
+        local copy = {}
+        for key, value in pairs(t) do
+            if type(value) == "table" then
+                copy[key] = self:deepCopy(value)
+            else
+                copy[key] = value
+            end
+        end
+        return copy
     end
 }

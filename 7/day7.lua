@@ -165,19 +165,7 @@ for line in file:lines() do
     table.insert(data, { hand = hand, bid = tonumber(bid)})
 end
 
-DeepCopy = function(t)
-    local copy = {}
-    for key, value in pairs(t) do
-        if type(value) == "table" then
-            copy[key] = DeepCopy(value)
-        else
-            copy[key] = value
-        end
-    end
-    return copy
-end
-
-print("partOne: " .. partOne(DeepCopy(data)))
+print("partOne: " .. partOne(help:deepCopy(data)))
 print("partTwo: " .. partTwo(data))
 
 file:close()
