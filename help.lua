@@ -22,5 +22,27 @@ return {
             end
         end
         return copy
-    end
+    end,
+
+    queue = {
+        create = function ()
+            local container = {}
+            return {
+                pop = function(self)
+                    local top = container[1]
+                    table.remove(container, 1)
+                    return top
+                end,
+                push = function(self, e)
+                    table.insert(container, e)
+                end,
+                empty = function(self)
+                    return #container == 0
+                end,
+                size = function(self)
+                    return #container
+                end
+            }
+        end
+    }
 }

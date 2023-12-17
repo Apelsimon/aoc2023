@@ -25,7 +25,7 @@ local extrapolate = function(numbers, doEndValue)
             else
                 table.insert(differences[row], 1, differences[row][1])
             end
-            
+
             repeat
                 local diffs = differences[row]
                 local diffs_1 = differences[row - 1]
@@ -34,7 +34,7 @@ local extrapolate = function(numbers, doEndValue)
                 else
                     table.insert(diffs_1, 1, diffs_1[1] - diffs[1])
                 end
-                
+
                 row = row - 1
             until row == 1
 
