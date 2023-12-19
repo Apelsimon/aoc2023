@@ -1,16 +1,8 @@
 package.path = package.path .. ';../help.lua'
 local help = require("help")
 
-local stringToTable = function(str)
-    local buffer = {}
-    for i = 1, #str do
-    buffer[i] = str:sub(i,i)
-    end
-    return buffer
-end
-
 local sortString = function(input)
-    local buffer = stringToTable(input)
+    local buffer = help.stringToTable(input)
     table.sort(buffer)
     return table.concat(buffer)
 end

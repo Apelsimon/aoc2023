@@ -44,5 +44,13 @@ return {
                 end
             }
         end
-    }
+    },
+
+    stringToTable = function(str)
+        local buffer = {}
+        for i = 1, #str do
+        buffer[i] = str:sub(i,i)
+        end
+        return buffer
+    end
 }
