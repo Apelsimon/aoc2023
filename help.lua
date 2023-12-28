@@ -52,5 +52,13 @@ return {
         buffer[i] = str:sub(i,i)
         end
         return buffer
+    end,
+
+    slice = function(t, start, stop)
+        local s = {}
+        for i = start, stop do
+            table.insert(s, t[i])
+        end
+        return s
     end
 }

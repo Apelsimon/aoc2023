@@ -4,109 +4,110 @@ local help = require("help")
 local file = io.open(arg[1], "r")
 assert(file)
 
-local numCharsInString = function(str, char)
-    local sum = 0
-    for i = 1, #str do
-        if str:sub(i, i) == char then
-            sum = sum + 1
+local maybeNewString = function(numbers, str, strictCheck)
+    local groups = help.splitIntoTable(str, ".")
+
+    if strictCheck then
+        if #numbers ~= #groups then
+            return nil
         end
-    end
-    return sum
-end
-
-Permutations = function(char1, char2, length, accumulator, container)
-    accumulator = accumulator or ""
-    container = container or {}
-
-    if length == 0 then
-        table.insert(container, accumulator)
     else
-        Permutations(char1, char2, length - 1, accumulator .. char1, container)
-        Permutations(char1, char2, length - 1, accumulator .. char2, container)
+        if #numbers < #groups then
+            return nil
+        end
     end
 
-    return container
-end
-
-local makeTestString = function(str, permutation)
-    local pIt = 1
-    local length = #str
-    local i = 1
-
-    while i <= length do
-        if str:sub(i, i) == "?" then
-            str = str:sub(1, i - 1) .. permutation:sub(pIt, pIt) .. str:sub(i + 1)
-            pIt = pIt + 1
+    for i, group in ipairs(groups) do
+        if strictCheck then
+            if numbers[i] ~= #group then
+                return nil
+            end
+        else    
+            if numbers[i] < #group then
+                return nil
+            end
         end
-
-        i = i + 1
     end
 
     return str
 end
 
-local isValid = function(numbers, str)
-    local i = 1
-    local doCount = false
-    local count = 0
-    local numIt = 1
-
-    while i <= #str do
-        local isHash = str:sub(i, i) == "#"
-
-        if not doCount and isHash then
-            doCount = true
-            count = 1
-
-            if numIt > #numbers then
-                return false
-            end
-        elseif doCount then
-            if isHash then
-                count = count + 1
-            else
-                if numbers[numIt] ~= count then
-                    return false
-                end
-
-                count = 0
-                numIt = numIt + 1
-                doCount = false
-            end
-        end
-
-        i = i + 1
+BuildValidStrings = function(numbers, record, strings, stringLengths)
+    if stringLengths == #record then
+        return strings
     end
 
-    if doCount and numIt <= #numbers then
-        if numbers[numIt] ~= count then
-            return false
-        end
+    local newStrings = {}
 
-        numIt = numIt + 1
+    for _, str in ipairs(strings) do
+        local char = record:sub(stringLengths + 1, stringLengths + 1)
+        local str2, str3
+
+        if char == "?" then
+            str2 = maybeNewString(numbers, str .. "#", (#str + 1) == #record)
+            str3 = maybeNewString(numbers, str .. ".", (#str + 1) == #record)
+        else
+            str2 = maybeNewString(numbers, str .. char, (#str + 1) == #record)
+        end 
+
+        if str2 then
+            table.insert(newStrings, str2)
+        end
+        if str3 then
+            table.insert(newStrings, str3)
+        end    
     end
 
-    return numIt > #numbers
+    return BuildValidStrings(numbers, record, newStrings, stringLengths + 1)
 end
 
-local sum = 0
+local partOne = function(lines)
+    local sum = 0
+
+    for _, line in ipairs(lines) do
+        local record, r2 = help.splitInTwo(line, " ")
+        local numbers = help.splitIntoTable(r2, ", ", tonumber)
+        sum = sum + #BuildValidStrings(numbers, record, {""}, 0)
+    end
+
+    return sum
+end
+
+local partTwo = function(lines)
+    return 0
+
+    -- local unfold = function(record, numbers)
+    --     local r = record
+    --     local nrs = help:deepCopy(numbers)
+
+    --     for i = 1, 4 do
+    --         r = r .. "?" .. record
+    --         for _, nr in ipairs(numbers) do
+    --             table.insert(nrs, nr)
+    --         end
+    --     end
+    --     return r, nrs
+    -- end
+
+    -- local sum = 0
+    -- for _, line in ipairs(lines) do
+    --     local record, r2 = help.splitInTwo(line, " ")
+    --     local numbers = help.splitIntoTable(r2, ", ", tonumber)
+    --     record, numbers = unfold(record, numbers)
+    --     sum = sum + #BuildValidStrings(numbers, record, {""}, 0)
+    -- end
+
+    -- return sum
+end
+
+local lines = {}
 
 for line in file:lines() do
-    local record, r2 = help.splitInTwo(line, " ")
-    local numbers = help.splitIntoTable(r2, ", ", tonumber)
-    local permutations = Permutations(".", "#", numCharsInString(record, "?"))
-
-    local numValidPermutations = 0
-
-    for _, p in ipairs(permutations) do
-        if isValid(numbers, makeTestString(record, p)) then
-            numValidPermutations = numValidPermutations + 1
-        end
-    end
-
-    sum = sum + numValidPermutations
+    table.insert(lines, line)
 end
 
-print("sum: " .. sum)
+
+print("partOne: " .. partOne(help:deepCopy(lines)))
+-- print("partTwo: " .. partTwo(lines))
 
 file:close()
